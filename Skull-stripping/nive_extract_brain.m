@@ -13,7 +13,12 @@ function skullStripped = nive_extract_brain(imagePath, modelPath) %Add outputPat
 
     % Apply the mask to get skull-stripped image
     skullStripped = img;
-    skullStripped(repmat(~mask, [1 1 3])) = 0;
+    
+    for c = 1:size(img, 3)
+        channel = skullStripped(:,:,c);
+        channel(~mask) = 0;
+        skullStripped(:,:,c) = channel;
+    end
 
     % % Save the skull-stripped image
     % imwrite(skullStripped, outputPath);
