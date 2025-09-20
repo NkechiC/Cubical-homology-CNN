@@ -1,25 +1,9 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-"""
-Preprocess MRI images:
-1. Crop images
-2. Run skull stripping with MATLAB
-3. Apply CLAHE
-"""
-
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import os
-from PIL import Image
 import cv2
 import imutils
+import os
+from PIL import Image
 import matlab.engine
-import random
-from gtda.homology import CubicalPersistence
-from gtda.diagrams import PersistenceLandscape
-import plotly.express as px
 
 
 def crop_img(img):
@@ -39,38 +23,43 @@ def crop_img(img):
     extRight = tuple(c[c[:, :, 0].argmax()][0])
     extTop = tuple(c[c[:, :, 1].argmin()][0])
     extBot = tuple(c[c[:, :, 1].argmax()][0])
-    ADD_PIXELS = 0
 
-    new_img = img[
-        extTop[1]-ADD_PIXELS:extBot[1]+ADD_PIXELS,
-        extLeft[0]-ADD_PIXELS:extRight[0]+ADD_PIXELS
-    ].copy()
-    
+    new_img = img[extTop[1]:extBot[1], extLeft[0]:extRight[0]].copy()
     return new_img
 
 
-def complete_preprocessing(image_path, eng):
-    """Complete preprocessing for a given image path."""
-    eng.cd(os.getcwd(), nargout=0)
-    model_path = os.path.abspath("NIVE.mat")
+def complete_preprocessing(image_path, eng=None, skull_strip=True, apply_clahe=True):
+    """Preprocess image with options for skull-stripping and CLAHE."""
 
-    result = eng.nive_extract_brain(image_path, model_path)
-    shape = tuple(result.size)
-    skull_np_array = np.array(result._data, dtype=np.uint8).reshape(shape, order='F')
-    
-    cropped_skull = crop_img(skull_np_array)
-    resized_skull = cv2.resize(cropped_skull, (200, 200), interpolation=cv2.INTER_AREA)
-    gray = cv2.cvtColor(resized_skull, cv2.COLOR_BGR2GRAY)
-    
-    clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(8, 8))
-    clahe_skull = clahe.apply(gray)
-    
-    return Image.fromarray(clahe_skull)
+    if skull_strip:
+        # Skull stripping 
+        eng.cd(os.getcwd(), nargout=0)
+        model_path = os.path.abspath("NIVE.mat")
+        result = eng.nive_extract_brain(image_path, model_path)
+        shape = tuple(result.size)
+        skull_np_array = np.array(result._data, dtype=np.uint8).reshape(shape, order="F")
+        img = skull_np_array
 
+        # Crop + resize 
+        cropped = crop_img(img)
+        resized = cv2.resize(cropped, (200, 200), interpolation=cv2.INTER_AREA)
+        gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+
+    else:
+        # If no skull stripping: just read and grayscale
+        img = cv2.imread(image_path)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # CLAHE or plain grayscale
+    if apply_clahe:
+        clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(8, 8))
+        final_img = clahe.apply(gray)
+    else:
+        final_img = gray
+
+    return Image.fromarray(final_img)
 
 if __name__ == "__main__":
-    eng = matlab.engine.start_matlab()
-
     # # First stage
     # input_dir = "MRI/Training/glioma"
     # output_dir = "MRI/Training/glioma_preprocessed"
@@ -85,21 +74,37 @@ if __name__ == "__main__":
     #         resized = cv2.resize(cropped, (IMG_SIZE, IMG_SIZE))
     #         output_path = os.path.join(output_dir, filename)
     #         cv2.imwrite(output_path, resized)
-
-    # Second stage
-    new_input_dir = "MRI/Training/meningioma_preprocessed"
-    new_output_dir = "MRI/Training/meningioma_preprocessed_comp"
-    os.makedirs(new_output_dir, exist_ok=True)
-
+    
+    new_input_dir = "MRI/Training/pituitary_preprocessed"
     sorted_filenames = sorted([f for f in os.listdir(new_input_dir) if f.lower().endswith(".jpg")])
-    for filename in sorted_filenames:
+
+    # Flags
+    use_skull_strip = True
+    use_clahe = True
+
+    eng = None
+    if use_skull_strip:
+        eng = matlab.engine.start_matlab()
+
+    cache = {} 
+
+    # Process first 5 images
+    for filename in sorted_filenames[:5]:
         image_path = os.path.join(new_input_dir, filename)
+
         try:
-            processed_img = complete_preprocessing(image_path, eng)
-            output_path = os.path.join(new_output_dir, filename)
-            processed_img.save(output_path)
-            print(f"Saved: {output_path}")
+            processed_img = complete_preprocessing(image_path, eng=eng, skull_strip=use_skull_strip, apply_clahe=use_clahe)
+            cache[filename] = processed_img
+            print(f"Processed and cached: {filename}")
         except Exception as e:
             print(f"Error processing {filename}: {e}")
 
-    eng.quit()
+    # Show the cached images
+    for name, img in cache.items():
+        img.show(title=name) 
+
+    # Quit MATLAB only if it was started
+    if eng is not None:
+        eng.quit()
+
+    print(f"\nCached {len(cache)} images in memory.")
