@@ -1,3 +1,6 @@
+import torch
+import torch.nn as nn
+
 class BenchmarkNN(nn.Module):
     def __init__(self):
         super(BenchmarkNN, self).__init__()
