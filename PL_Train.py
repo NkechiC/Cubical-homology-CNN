@@ -60,97 +60,102 @@ features_data_path = "brain_mri_dataset/training.csv"
 
 # Load in the training features dataset.
 features_data = pd.read_csv(features_data_path).to_numpy()
+features_data = features_data[0, 0:500]
+x_vals = list(range(1, 501))
+plt.plot(x_vals, features_data)
+plt.savefig("Features Trend")
+
 
 # Shuffle the training features dataset.
-np.random.shuffle(features_data)
+# np.random.shuffle(features_data)
 
-# Perform 80/20 split on the training and testing data features.
-# !!REMOVE THIS CODE ONCE THE REAL TESTING IMAGE FEATURES HAVE BEEN EXTRACTED!!
-training_features = features_data
+# # Perform 80/20 split on the training and testing data features.
+# # !!REMOVE THIS CODE ONCE THE REAL TESTING IMAGE FEATURES HAVE BEEN EXTRACTED!!
+# training_features = features_data
 
-# Split the training inputs into batches and extract the labels.
-training_inputs = []
-training_labels = []
-k = 20
+# # Split the training inputs into batches and extract the labels.
+# training_inputs = []
+# training_labels = []
+# k = 20
 
-for i in range(len(training_features)):
-    current_features = training_features[i]
-    training_inputs.append(current_features[0:500])
-    training_labels.append(current_features[500])
+# for i in range(len(training_features)):
+#     current_features = training_features[i]
+#     training_inputs.append(current_features[0:500])
+#     training_labels.append(current_features[500])
 
-batches = k_fold_cross_validation_split(k, training_inputs, training_labels)
+# batches = k_fold_cross_validation_split(k, training_inputs, training_labels)
 
-# Initialize the model and the hyper-parameters.
-model = PersistenceLandscapeNN()
-learning_rate = 0.001
-loss = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-loss_values = []
-training_accuracies = []
+# # Initialize the model and the hyper-parameters.
+# model = PersistenceLandscapeNN()
+# learning_rate = 0.001
+# loss = nn.CrossEntropyLoss()
+# optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+# loss_values = []
+# training_accuracies = []
 
-# print(batches[0])
+# # print(batches[0])
 
-# if (1 == 2):
-# Train the network.
-model.train()
+# # if (1 == 2):
+# # Train the network.
+# model.train()
 
-for i in range(len(batches)):
+# for i in range(len(batches)):
 
-    print("-------------------------------------TRAINING WITH BATCH " + str(i + 1) + "------------------------------------------------------")
+#     print("-------------------------------------TRAINING WITH BATCH " + str(i + 1) + "------------------------------------------------------")
     
-    standardized_inputs = []
-    indexed_labels = []
+#     standardized_inputs = []
+#     indexed_labels = []
 
-    for j in range(len(batches[i])):
+#     for j in range(len(batches[i])):
 
-        print("--> Standardizing Input " + str(j + 1) + " of " + str(len(batches[i])))
+#         print("--> Standardizing Input " + str(j + 1) + " of " + str(len(batches[i])))
         
-        INPUT, LABEL = batches[i][j]
-        # total = np.sum(INPUT)
-        mean = np.mean(INPUT)
-        std = np.std(INPUT)
-        mean_array = np.full(len(INPUT), mean)
-        standardized_inputs.append((INPUT - mean_array) * (1 / std))
-        print(standardized_inputs)
-        indexed_labels.append(LABEL)
+#         INPUT, LABEL = batches[i][j]
+#         # total = np.sum(INPUT)
+#         mean = np.mean(INPUT)
+#         std = np.std(INPUT)
+#         mean_array = np.full(len(INPUT), mean)
+#         standardized_inputs.append((INPUT - mean_array) * (1 / std))
+#         print(standardized_inputs)
+#         indexed_labels.append(LABEL)
 
-    X = np.array(standardized_inputs)
-    print(standardized_inputs)
-    break
-    y = np.array(indexed_labels)
+#     X = np.array(standardized_inputs)
+#     print(standardized_inputs)
+#     break
+#     y = np.array(indexed_labels)
 
-    X_tensor = torch.from_numpy(X).float()
-    y_tensor = torch.tensor(y, dtype=torch.long)
+#     X_tensor = torch.from_numpy(X).float()
+#     y_tensor = torch.tensor(y, dtype=torch.long)
 
-    optimizer.zero_grad()
+#     optimizer.zero_grad()
 
-    print("\n-> Forward Propagation In Progress...")
-    predictions = model(X_tensor)
-    print("-> Forward Propagation Complete!")
+#     print("\n-> Forward Propagation In Progress...")
+#     predictions = model(X_tensor)
+#     print("-> Forward Propagation Complete!")
 
-    print("-> Loss Computation In Progress...")
-    loss_value = loss(predictions, y_tensor)
-    print("-> Loss Computation Complete!\n")
+#     print("-> Loss Computation In Progress...")
+#     loss_value = loss(predictions, y_tensor)
+#     print("-> Loss Computation Complete!\n")
 
-    print("-> Back Propagation In Progress...")
-    loss_value.backward()
-    print("-> Back Propagation Complete!\n")
+#     print("-> Back Propagation In Progress...")
+#     loss_value.backward()
+#     print("-> Back Propagation Complete!\n")
     
-    optimizer.step()
-    print("-> Took step towards local minimum!\n")
+#     optimizer.step()
+#     print("-> Took step towards local minimum!\n")
 
-    predictions = predictions.detach().numpy()
-    cnt = 0
+#     predictions = predictions.detach().numpy()
+#     cnt = 0
 
-    for i in range(len(predictions)):
-        if np.argmax(predictions[i]) == y[i]:
-            cnt += 1
+#     for i in range(len(predictions)):
+#         if np.argmax(predictions[i]) == y[i]:
+#             cnt += 1
 
-    training_accuracies.append(cnt / len(predictions))
-    loss_values.append(loss_value.item())
+#     training_accuracies.append(cnt / len(predictions))
+#     loss_values.append(loss_value.item())
     
-batches = list(range(1, k + 1))
-plt.plot(batches, loss_values)
-plt.savefig("Persistence Landscape NN Loss Values")
+# batches = list(range(1, k + 1))
+# plt.plot(batches, loss_values)
+# plt.savefig("Persistence Landscape NN Loss Values")
 
-torch.save(model.state_dict(), 'PL_model_params.pth')
+# torch.save(model.state_dict(), 'PL_model_params.pth')

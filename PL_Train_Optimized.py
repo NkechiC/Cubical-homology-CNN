@@ -24,20 +24,22 @@ training_data = training_data.to_numpy()
 training_inputs = training_data[:, 0:500]
 training_labels = training_data[:, 500]
 
-for i in range(len(training_inputs)):
-    Standardize(training_inputs, i)
+print(np.unique(training_data[0]))
 
-input_tensor = torch.tensor(training_inputs)
-label_tensor = torch.tensor(training_labels, dtype=torch.long)
+# for i in range(len(training_inputs)):
+#     Standardize(training_inputs, i)
 
-model = PersistenceLandscapeNN()
-learning_rate = 0.001
-loss = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-epochs = 5
+# input_tensor = torch.tensor(training_inputs)
+# label_tensor = torch.tensor(training_labels, dtype=torch.long)
 
-for train_index, test_index in kf.split(input_tensor):
-    X_train, X_test = input_tensor[train_index], input_tensor[test_index]
-    y_train, y_test = label_tensor[train_index], label_tensor[test_index]
+# model = PersistenceLandscapeNN()
+# learning_rate = 0.001
+# loss = nn.CrossEntropyLoss()
+# optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+# epochs = 5
+
+# for train_index, test_index in kf.split(input_tensor):
+#     X_train, X_test = input_tensor[train_index], input_tensor[test_index]
+#     y_train, y_test = label_tensor[train_index], label_tensor[test_index]
 
     
