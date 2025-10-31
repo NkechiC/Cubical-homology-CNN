@@ -51,16 +51,16 @@ def Extract_Features(img_path):
     return CLAHE_persistence_landscape(img)
 
 def main():
-    training_path = "brain_mri_dataset/Training/"
-    testing_path = "brain_mri_dataset/Testing/"
+    training_path = "../brain_mri_dataset/Training/"
+    testing_path = "../brain_mri_dataset/Testing/"
     preprocessed_directories = [
         "glioma_preprocessed_comp",
         "meningioma_preprocessed_comp",
         "notumor_preprocessed_comp",
         "pituitary_preprocessed_comp"
     ]
-    training_features_path = "brain_mri_dataset/training.csv"
-    testing_features_path = "brain_mri_dataset/testing.csv"
+    training_features_path = "../brain_mri_dataset/training.csv"
+    testing_features_path = "../brain_mri_dataset/testing.csv"
     training_features = []
     testing_features = []
     headers = []
@@ -76,60 +76,60 @@ def main():
         training = training_path + directory
         testing = testing_path + directory
 
-        print("\nSTARTED EXTRACTING FEATURES FOR " + training + " images")
+        # print("\nSTARTED EXTRACTING FEATURES FOR " + training + " images")
 
-        for image in os.listdir(training):
-            if image == ".ipynb_checkpoints":
-                continue
-
-            image_path = training + "/" + image
-
-            print("--> Extracting Features: ", image_path)
-
-            training_features.append(
-                Extract_Features(image_path).tolist()
-            )
-
-            if "glioma" in image_path:
-                training_features[len(training_features) - 1].append(0)
-            elif "meningioma" in image_path:
-                training_features[len(training_features) - 1].append(1)
-            elif "notumor" in image_path:
-                training_features[len(training_features) - 1].append(2)
-            else:
-                training_features[len(training_features) - 1].append(3)
-
-        # print("\nSTARTED EXTRACTING FEATURES FOR " + testing + " images\n")
-        
-        # for image in os.listdir(testing):
-
+        # for image in os.listdir(training):
         #     if image == ".ipynb_checkpoints":
         #         continue
 
-        #     image_path = testing + "/" + image
+        #     image_path = training + "/" + image
 
         #     print("--> Extracting Features: ", image_path)
 
-        #     testing_features.append(
+        #     training_features.append(
         #         Extract_Features(image_path).tolist()
         #     )
 
         #     if "glioma" in image_path:
-        #         testing_features[len(testing_features) - 1].append(0)
+        #         training_features[len(training_features) - 1].append(0)
         #     elif "meningioma" in image_path:
-        #         testing_features[len(testing_features) - 1].append(1)
+        #         training_features[len(training_features) - 1].append(1)
         #     elif "notumor" in image_path:
-        #         testing_features[len(testing_features) - 1].append(2)
+        #         training_features[len(training_features) - 1].append(2)
         #     else:
-        #         testing_features[len(testing_features) - 1].append(3)
+        #         training_features[len(training_features) - 1].append(3)
 
-    with open(training_features_path, mode="w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerows(training_features)
+        print("\nSTARTED EXTRACTING FEATURES FOR " + testing + " images\n")
+        
+        for image in os.listdir(testing):
 
-    # with open(testing_features_path, mode="w", newline="") as file:
+            if image == ".ipynb_checkpoints":
+                continue
+
+            image_path = testing + "/" + image
+
+            print("--> Extracting Features: ", image_path)
+
+            testing_features.append(
+                Extract_Features(image_path).tolist()
+            )
+
+            if "glioma" in image_path:
+                testing_features[len(testing_features) - 1].append(0)
+            elif "meningioma" in image_path:
+                testing_features[len(testing_features) - 1].append(1)
+            elif "notumor" in image_path:
+                testing_features[len(testing_features) - 1].append(2)
+            else:
+                testing_features[len(testing_features) - 1].append(3)
+
+    # with open(training_features_path, mode="w", newline="") as file:
     #     writer = csv.writer(file)
-    #     writer.writerows(testing_features)
+    #     writer.writerows(training_features)
+
+    with open(testing_features_path, mode="w", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerows(testing_features)
     
             
 

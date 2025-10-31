@@ -48,28 +48,13 @@ class BenchmarkNN(nn.Module):
         self.dropout = nn.Dropout(p=0.5)
 
     def forward(self, x):
-        print(x.shape)
-        
         x = self.conv1(x)
         x = self.relu(x)
-
-        print(x.shape)
-        
         x = self.conv2(x)
-
-        print(x.shape)
-        
         x = self.avg_pool(x)
-
-        print(x.shape)
-        
         x = self.conv3(x)
         x = self.relu(x)
-
-        print(x.shape)
-        
         x = x.view(x.size(0), -1)
-
         x = self.layer1(x)
         x = self.relu(x)
         x = self.layer2(x)
