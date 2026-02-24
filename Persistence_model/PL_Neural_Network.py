@@ -8,22 +8,20 @@ class PersistenceLandscapeNN(nn.Module):
         super(PersistenceLandscapeNN, self).__init__()
 
         # Linear Layers (in order)
-        self.layer1 = nn.Linear(200, 150)
-        self.layer2 = nn.Linear(150, 100)
-        self.layer3 = nn.Linear(100, 50)
-        self.layer4 = nn.Linear(50, 25)
-        self.layer5 = nn.Linear(25, 12)
-        self.layer6 = nn.Linear(12, 8)
-        self.layer7 = nn.Linear(8, 4)
+        self.layer1 = nn.Linear(18, 32)
+        self.layer2 = nn.Linear(32, 32)
+        self.layer3 = nn.Linear(32, 32)
+        self.layer4 = nn.Linear(32, 32)
+        self.layer5 = nn.Linear(32, 32)
+        self.layer6 = nn.Linear(32, 32)
+        self.layer7 = nn.Linear(32, 32)
+        self.layer8 = nn.Linear(32, 32)
+        self.layer9 = nn.Linear(32, 32)
+        self.layer10 = nn.Linear(32, 4)
 
         # Batch Norm Layers
-        self.bn1 = nn.BatchNorm1d(150)
-        self.bn2 = nn.BatchNorm1d(100)
-        self.bn5 = nn.BatchNorm1d(12)
-        self.bn6 = nn.BatchNorm1d(8)
-
-        # Dropout Layers
-        self.dropout = nn.Dropout(p=0.4)
+        self.bn1 = nn.BatchNorm1d(32)
+        self.bn2 = nn.BatchNorm1d(32)
 
         # Activation Functions
         self.sigmoid = nn.Sigmoid()
@@ -43,11 +41,18 @@ class PersistenceLandscapeNN(nn.Module):
         x = self.layer4(x)
         x = self.relu(x)
         x = self.layer5(x)
-        x = self.bn5(x)
         x = self.relu(x)
         x = self.layer6(x)
-        x = self.bn6(x)
         x = self.relu(x)
         x = self.layer7(x)
-        return x
+        x = self.relu(x)
+        x = self.layer8(x)
+        x = self.relu(x)
+        x = self.layer9(x)
+        x = self.relu(x)
+        x = self.layer10(x)
+
+        if not self.training:
+            x = self.softmax(x)
         
+        return x

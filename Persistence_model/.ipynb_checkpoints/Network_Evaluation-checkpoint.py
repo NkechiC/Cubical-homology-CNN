@@ -6,8 +6,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import random
+import seaborn as sns
 from sklearn.model_selection import KFold
-from PL_Neural_Network import PersistenceLandscapeNN
+from sklearn.metrics import confusion_matrix
+from New_Best_Network import PersistenceLandscapeNN
 
 def Standardize(data, index):
     arr = data[index]
@@ -18,12 +20,15 @@ def Standardize(data, index):
     data[index] = result
 
 model = PersistenceLandscapeNN()
-model.load_state_dict(torch.load("current_model.pth"))
+model.load_state_dict(torch.load("new_best_model.pth"))
 model.eval()
 
-testing_data = pd.read_csv("../Preprocessing/Extracted_Features_Testing.csv")
+testing_data = pd.read_csv("../Preprocessing/Features/NoPrep_Testing_Crop.csv")
 testing_data = testing_data.iloc[:, 1:]
 testing_data = testing_data.to_numpy()
+
+# mean_vector = np.loadtxt("mean_feature_vector.csv", delimiter=",")
+# loadings = np.loadtxt("loadings.csv", delimiter=",")
 
 np.random.shuffle(testing_data)
 
@@ -39,16 +44,20 @@ label_map = dict({
 for i in range(len(testing_labels)):
     testing_labels[i] = label_map[testing_labels[i]]
 
+# testing_inputs = (testing_inputs - mean_vector) @ loadings
+
 for i in range(len(testing_inputs)):
     Standardize(testing_inputs, i)
 
 testing_inputs = testing_inputs.astype(float)
 testing_labels = testing_labels.astype(int)
 loss_criterion = nn.CrossEntropyLoss()
+loss_total = 0
 correct_count = 0
 images = []
 loss_values = []
-label_counts = [0, 0, 0, 0]
+y_actual = []
+y_pred = []
 
 for i in range(len(testing_inputs)):
     print("\nTESTING WITH IMAGE " + str(i + 1) + " OF " + str(len(testing_inputs)))
@@ -68,17 +77,40 @@ for i in range(len(testing_inputs)):
     loss_values.append(loss.item())
 
     print("-> Loss Value (Cross Entropy): " + str(loss.item()))
-
+    
     if np.argmax(prediction.detach().numpy()[0]) == testing_labels[i]:
         correct_count += 1
 
-    label_counts[np.argmax(prediction.detach().numpy()[0])] += 1
+    y_pred.append(np.argmax(prediction.detach().numpy()[0]))
+    y_actual.append(testing_labels[i])
+
+
+cm = confusion_matrix(y_actual, y_pred)
+loss_values = np.array(loss_values)
+
+plt.figure(figsize=(8, 5))
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt="d",
+    cmap="Blues",
+    xticklabels=["Glioma", "Meningioma", "No Tumor", "Pituitary"],
+    yticklabels=["Glioma", "Meningioma", "No Tumor", "Pituitary"]
+)
+
+plt.xlabel("Prediction")
+plt.ylabel("Actual")
+plt.title("Confusion Matrix")
+plt.savefig("evaluation_confusion_matrix.png")
 
 plt.figure(figsize=(8, 5))
 plt.hist(loss_values, bins=50, color="skyblue", edgecolor="black")
+plt.axvline(np.mean(loss_values), color="red", label="Mean Loss")
+plt.axvline(np.median(loss_values), color="green", label="Median Loss")
 plt.title("Evaluation Loss Distribution")
 plt.xlabel("Loss Value")
 plt.ylabel("Frequency")
+plt.legend()
 plt.savefig("testing_loss.png")
 
 print("\nEvaluation Accuracy: " + str(correct_count / len(testing_inputs)))

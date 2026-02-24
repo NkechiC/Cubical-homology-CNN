@@ -42,4 +42,8 @@ class PersistenceLandscapeNN(nn.Module):
         x = self.layer6(x)
         x = self.relu(x)
         x = self.layer7(x)
+
+        if not self.training:
+            x = self.softmax(x)
+        
         return x
