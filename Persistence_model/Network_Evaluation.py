@@ -23,7 +23,7 @@ model = PersistenceLandscapeNN()
 model.load_state_dict(torch.load("new_best_model.pth"))
 model.eval()
 
-testing_data = pd.read_csv("../Preprocessing/Features/NoPrep_Testing_Crop.csv")
+testing_data = pd.read_csv("../Preprocessing/Features/NoPrep_Testing_Crop_L10B50.csv")
 testing_data = testing_data.iloc[:, 1:]
 testing_data = testing_data.to_numpy()
 
@@ -32,7 +32,7 @@ testing_data = testing_data.to_numpy()
 
 np.random.shuffle(testing_data)
 
-testing_inputs = testing_data[:, 1:201]
+testing_inputs = testing_data[:, 1:1001]
 testing_labels = testing_data[:, 0]
 label_map = dict({
     "glioma": 0,
