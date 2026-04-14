@@ -8,7 +8,7 @@ class PersistenceLandscapeNN(nn.Module):
         super(PersistenceLandscapeNN, self).__init__()
 
         # Linear Layers (in order)
-        self.layer1 = nn.Linear(200, 150)
+        self.layer1 = nn.Linear(1000, 150)
         self.layer2 = nn.Linear(150, 100)
         self.layer3 = nn.Linear(100, 50)
         self.layer4 = nn.Linear(50, 25)

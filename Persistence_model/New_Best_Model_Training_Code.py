@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import random
 from sklearn.model_selection import StratifiedKFold
-from PL_Neural_Network import PersistenceLandscapeNN
+from New_Best_Network import PersistenceLandscapeNN
 
 def Standardize(data, index):
     arr = data[index]
@@ -20,7 +20,7 @@ def Standardize(data, index):
 k = 30
 skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
 
-training_data = pd.read_csv("../Preprocessing/Features/NoPrep_Training_Crop.csv")
+training_data = pd.read_csv("../Preprocessing/Features/NoPrep_Training_Crop_L10B50.csv")
 mean_vector = np.loadtxt("mean_feature_vector.csv", delimiter=",")
 loadings = np.loadtxt("loadings.csv", delimiter=",")
 training_data = training_data.iloc[:, 1:]
@@ -54,11 +54,11 @@ while index < len(training_data):
     else:
         index_addition = num_pituitary
     
-    training_inputs += training_data[index:(index + num_per_class), 1:201].tolist()
+    training_inputs += training_data[index:(index + num_per_class), 1:1001].tolist()
     
     training_labels += training_data[index:(index + num_per_class), 0].tolist()
     
-    validation_inputs += training_data[(index + num_per_class):(index + index_addition), 1:201].tolist()
+    validation_inputs += training_data[(index + num_per_class):(index + index_addition), 1:1001].tolist()
     
     validation_labels += training_data[(index + num_per_class):(index + index_addition), 0].tolist()
 
@@ -294,4 +294,4 @@ plt.legend()
 plt.savefig("current_recalls.png")
 plt.close()
 
-torch.save(model.state_dict(), "current_model.pth")
+torch.save(model.state_dict(), "new_best_model.pth")
