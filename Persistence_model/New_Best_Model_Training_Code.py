@@ -21,8 +21,6 @@ k = 30
 skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=42)
 
 training_data = pd.read_csv("../Preprocessing/Features/NoPrep_Training_Crop_L10B50.csv")
-mean_vector = np.loadtxt("mean_feature_vector.csv", delimiter=",")
-loadings = np.loadtxt("loadings.csv", delimiter=",")
 training_data = training_data.iloc[:, 1:]
 
 num_glioma = len(training_data[training_data['label'] == 'glioma'])
@@ -74,9 +72,6 @@ validation_labels = np.array(validation_labels)
 training_shuffled_indices = np.random.permutation(len(training_inputs))
 training_inputs = training_inputs[training_shuffled_indices]
 training_labels = training_labels[training_shuffled_indices]
-
-# training_inputs = (training_inputs - mean_vector) @ loadings
-# validation_inputs = (validation_inputs - mean_vector) @ loadings
 
 # Plot the histogram of the training label distribution
 plt.figure(figsize=(8, 5))
