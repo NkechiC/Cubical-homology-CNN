@@ -24,7 +24,7 @@ def ReadImage(img_path):
 k = 50
 kf = KFold(n_splits=k, shuffle=True, random_state=42)
 
-training_path = "../brain_mri_dataset/Training/"
+training_path = "../archive/Training/"
 labels = dict({
     "glioma": 0,
     "meningioma": 1,

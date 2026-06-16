@@ -14,7 +14,7 @@ model = BenchmarkNN()
 model.load_state_dict(torch.load("benchmark_model.pth"))
 
 # Initialize a string containing the path to the testing images.
-testing_path = "../brain_mri_dataset/Testing/"
+testing_path = "../../archive/Testing/"
 
 # Initialize a list containing the four possible labels.
 labels = ["glioma", "meningioma", "notumor", "pituitary"]
